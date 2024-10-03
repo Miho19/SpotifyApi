@@ -40,9 +40,7 @@ public class DatabaseReadTests
     {
         var userTableHandler = new UserTableDatabaseHandler(database);
         List<IAuthenicatedUser> result = userTableHandler.UserRead("invalid session ID");
-      
         Assert.That(result.Capacity, Is.LessThanOrEqualTo(0));
-            
-        
     }
+
 }

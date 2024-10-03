@@ -64,7 +64,42 @@ public class UserTableDatabaseHandler(IDatabase database)
 
     public bool UserCreate(IAuthenicatedUser user)
     {
+        try 
+        {
+            if (!UserCreateIsUserObjectValid(user)) return false;
+
+
+            return UserCreatePerformOperation(user);
+        } 
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return false;   
+        }
+        
+    }
+
+    private bool UserCreatePerformOperation(IAuthenicatedUser user)
+    {   
+        var command = GetMySqlCommand();
+        command.CommandText = @"INSERT INTO TABLE user";
         return false;
+    }
+
+    private bool UserCreateIsUserObjectValid(IAuthenicatedUser user)
+    {   
+        if (user.UserProfile is null) return false;
+        if (String.IsNullOrEmpty(user.AccessToken)) return false;
+        if (String.IsNullOrEmpty(user.UserProfile.display_name)) return false;
+        if (String.IsNullOrEmpty(user.UserProfile.user_id)) return false;
+
+        if (user.UserProfile.identities is null || user.UserProfile.identities.Count <= 0) return false;
+        if (user.UserProfile.images is null || user.UserProfile.images.Count <= 0) return false;
+
+        if (String.IsNullOrEmpty(user.UserProfile.identities[0].access_token)) return false;
+        if (String.IsNullOrEmpty(user.UserProfile.images[0].url)) return false;
+
+        return true;
     }
 
     private MySqlCommand GetMySqlCommand()
@@ -77,9 +112,7 @@ public class UserTableDatabaseHandler(IDatabase database)
         command.Connection = Database.Connection as MySqlConnection;
         return command;
     }
-/** 
-    Do a cross join on users / spotifyUserData
-*/
+
     public List<IAuthenicatedUser> UserRead(string sessionID)
     {
         try 

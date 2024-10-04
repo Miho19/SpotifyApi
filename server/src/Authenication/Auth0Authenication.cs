@@ -17,7 +17,7 @@ public class Auth0MangementSpotifyUserProfile(IAuthenicatedUser AuthenicatedUser
             var spotifyProfile = new SpotifyPublicUserInformation();
             spotifyProfile.DisplayName = AuthenicatedUser.UserProfile?.display_name ?? "";
             spotifyProfile.ImageURL = AuthenicatedUser.UserProfile?.images?[0].url ?? "";
-            spotifyProfile.UserID = AuthenicatedUser.UserProfile?.user_id ?? "";
+            spotifyProfile.ProviderUserID = AuthenicatedUser.UserProfile?.user_id ?? "";
             
             return spotifyProfile;
         }
@@ -61,7 +61,7 @@ public class SpotifyPublicUserInformation : IAuthenicatedPublicInformation
 {
     public string DisplayName {get; set;} = string.Empty;
     public string ImageURL {get; set;} = string.Empty;
-    public string UserID {get; set;} = string.Empty;
+    public string ProviderUserID {get; set;} = string.Empty;
 }
 
 

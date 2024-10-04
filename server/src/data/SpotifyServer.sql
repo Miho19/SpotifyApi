@@ -12,7 +12,7 @@ CREATE TABLE users (
 
 CREATE TABLE spotifyUserData (
     spotify_id VARCHAR(255) PRIMARY KEY NOT NULL, 
-    u_id INTEGER, 
+    u_id INTEGER NOT NULL, 
     displayName VARCHAR(255) NOT NULL, 
     accessToken VARCHAR(255) NOT NULL, 
     imageURL VARCHAR(255) NOT NULL, 
@@ -20,6 +20,6 @@ CREATE TABLE spotifyUserData (
 );
 
 INSERT INTO users (u_sid) VALUES("fake user session id");
-INSERT INTO spotifyUserData (spotify_id, u_id, displayName, accessToken, imageURL) VALUES("spotify user id", 1, "Josh", "access token", "image url");
+INSERT INTO spotifyUserData (spotify_id, u_id, displayName, accessToken, imageURL) VALUES("oauth2|spotify|spotify:user:1253470477", 1, "Josh April", "access token", "image url");
 
 SELECT * FROM spotifyUserData;

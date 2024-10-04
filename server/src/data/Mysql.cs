@@ -1,6 +1,7 @@
 using System.Data;
 using MySql.Data.MySqlClient;
 using AuthRoute;
+using Mysqlx;
 namespace Data;
 
 public class MysqlDatabase : IDatabase
@@ -62,14 +63,16 @@ public class UserTableDatabaseHandler(IDatabase database)
 {
     private readonly IDatabase Database = database;
 
-    public bool UserCreate(IAuthenicatedUser user)
+    public bool UserCreate(IAuthenicatedUser user, string sessionID)
     {
         try 
-        {
+        {   
             if (!UserCreateIsUserObjectValid(user)) return false;
+            if (String.IsNullOrEmpty(sessionID)) return false;
+            var newUserTableID = UserTableAdd(sessionID);
 
+            return SpotifyUserDataTableAdd(user, newUserTableID);
 
-            return UserCreatePerformOperation(user);
         } 
         catch (Exception ex)
         {
@@ -79,12 +82,52 @@ public class UserTableDatabaseHandler(IDatabase database)
         
     }
 
-    private bool UserCreatePerformOperation(IAuthenicatedUser user)
+    private int UserTableAdd(string sessionID)
     {   
-        var command = GetMySqlCommand();
-        command.CommandText = @"INSERT INTO TABLE user";
-        return false;
+        var userAddCommand = GetMySqlCommand();
+        userAddCommand.CommandText = @"INSERT INTO users (u_sid) VALUES (@sessionID)";
+        userAddCommand.Parameters.AddWithValue("@sessionID", sessionID);
+        userAddCommand.ExecuteNonQuery();
+
+        var userGetCommand = GetMySqlCommand();
+        userGetCommand.CommandText = @"SELECT * FROM users WHERE u_sid=@sessionID";
+        userGetCommand.Parameters.AddWithValue("@sessionID", sessionID);
+        userGetCommand.ExecuteNonQuery();
+
+        MySqlDataReader reader = userGetCommand.ExecuteReader();
+        reader.Read();
+        var readerResponse = reader["u_id"].ToString();
+        reader.Close();
+
+        if (String.IsNullOrEmpty(readerResponse)) throw new Exception("Failed to read u_id from database");
+        var userID = Int32.Parse(readerResponse);
+        return userID;
     }
+
+    private bool SpotifyUserDataTableAdd(IAuthenicatedUser user, int userID)
+    {
+        
+        var accessToken = user.UserProfile?.identities?[0].access_token;
+        var displayName = user.UserProfile?.display_name;
+        var spotifyUserID = user.UserProfile?.user_id;
+        var imageURL = user.UserProfile?.images?[0].url;
+
+        var spotifyUserDataAddCommand = GetMySqlCommand();
+        spotifyUserDataAddCommand.CommandText = @"INSERT INTO spotifyUserData
+            (spotify_id, u_id, displayName, accessToken, imageURL) 
+            VALUES(@spotifyUserID, @u_id, @displayName, @accessToken, @imageURL)";
+        
+        spotifyUserDataAddCommand.Parameters.AddWithValue("@spotifyUserID", spotifyUserID);
+        spotifyUserDataAddCommand.Parameters.AddWithValue("@u_id", userID);
+        spotifyUserDataAddCommand.Parameters.AddWithValue("@displayName", displayName);
+        spotifyUserDataAddCommand.Parameters.AddWithValue("@accessToken", accessToken);
+        spotifyUserDataAddCommand.Parameters.AddWithValue("@imageURL", imageURL);
+
+        spotifyUserDataAddCommand.ExecuteNonQuery();
+
+        return true;
+    }
+    
 
     private bool UserCreateIsUserObjectValid(IAuthenicatedUser user)
     {   

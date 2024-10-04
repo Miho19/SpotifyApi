@@ -5,7 +5,7 @@ public interface IAuthenicatedPublicInformation
 {
     string DisplayName {get;}
     string ImageURL {get;}
-    string UserID {get;}
+    string ProviderUserID {get;}
 }
 
 public interface IAuthenicatedUser

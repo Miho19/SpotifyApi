@@ -25,7 +25,7 @@ public class DatabaseReadTests
     public void UserTableReadReturnDummyEntry()
     {
         var userTableHandler = new UserTableDatabaseHandler(database);
-        List<IAuthenicatedUser> result = userTableHandler.UserRead("fake session id");
+        List<IAuthenicatedUser> result = userTableHandler.UserRead("fake user session id");
         var firstResponse = result[0] ?? throw new Exception("Failed to get user data");
         var userProfile = firstResponse.UserProfile ?? throw new Exception("User Profile not initialised");
         Assert.Multiple(() =>

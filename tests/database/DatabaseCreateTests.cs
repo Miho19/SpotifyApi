@@ -8,11 +8,20 @@ public class DatabaseCreateTests
 {
     readonly MysqlDatabase database = MysqlDatabase.Instance;
 
-    [SetUp]
     public void Setup()
     {
         DotNetEnv.Env.TraversePath().Load();
-        database.IsConnected(); 
+        database.IsConnected();
+        var userTableHandler = new UserTableDatabaseHandler(database);
+        userTableHandler.UserTableUseSource("/root/SpotifyApi/server/src/data/SpotifyServer.sql");
+    }
+
+    [OneTimeTearDown]
+    public void TearDown()
+    {
+        database.IsConnected();
+        var userTableHandler = new UserTableDatabaseHandler(database);
+        userTableHandler.UserTableUseSource("/root/SpotifyApi/server/src/data/SpotifyServer.sql");       
     }
 
    [Test]

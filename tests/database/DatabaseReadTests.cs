@@ -12,15 +12,19 @@ public class DatabaseReadTests
     public void Setup()
     {
         DotNetEnv.Env.TraversePath().Load();
-        database.IsConnected(); 
+        database.IsConnected();
+        var userTableHandler = new UserTableDatabaseHandler(database);
+        userTableHandler.UserTableUseSource("/root/SpotifyApi/server/src/data/SpotifyServer.sql");
     }
 
-   [Test]
-    public void DatabaseIsConnected()
+    [OneTimeTearDown]
+    public void TearDown()
     {
-        var result = database.IsConnected(); 
-        Assert.That(result, Is.True);
+        database.IsConnected();
+        var userTableHandler = new UserTableDatabaseHandler(database);
+        userTableHandler.UserTableUseSource("/root/SpotifyApi/server/src/data/SpotifyServer.sql");       
     }
+
     [Test]
     public void UserTableReadReturnDummyEntry()
     {

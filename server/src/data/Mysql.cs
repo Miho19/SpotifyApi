@@ -230,5 +230,32 @@ public class UserTableDatabaseHandler(IDatabase database)
         return false;
     }
 
+    public void UserTableUseSource(string filePath)
+    {
+        try 
+        {
+            FileInfo file = new FileInfo(filePath);
+            if (!file.Exists)
+            {
+                Console.WriteLine($"File: ${filePath}\nCould not be found");
+                return;
+            }
+
+            var command = GetMySqlCommand();
+            command.CommandText = @"source @filePath";
+            command.Parameters.AddWithValue("@filePath", file.FullName);
+
+            command.ExecuteNonQuery();
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        } 
+        
+        
+
+    }
+
 }
 
